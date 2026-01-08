@@ -43,38 +43,38 @@ A fast, efficient command-line tool to create, manage, and deploy Python project
 ### Create a New Project
 
 ```bash
-ppm new my-project
+ppmm new my-project
 cd my-project
-ppm start
+ppmm start
 ```
 
 ### Initialize in Existing Directory
 
 ```bash
 cd existing-project
-ppm init
-ppm add numpy pandas
-ppm start
+ppmm init
+ppmm add numpy pandas
+ppmm start
 ```
 
 ### Add Packages
 
 ```bash
-ppm add requests flask
-ppm add beautifulsoup4==4.9.0
+ppmm add requests flask
+ppmm add beautifulsoup4==4.9.0
 ```
 
 ### Run Project
 
 ```bash
-ppm start
+ppmm start
 ```
 
 ### Run Custom Scripts
 
 ```bash
-ppm run test
-ppm run build
+ppmm run test
+ppmm run build
 ```
 
 ## Installation
@@ -109,21 +109,21 @@ cd python-project-manager
 cargo build --release
 
 # Linux/macOS
-sudo cp target/release/ppm /usr/local/bin/
+sudo cp target/release/ppmm /usr/local/bin/
 
 # Windows (PowerShell/CMD)
 copy target\release\ppm.exe C:\\Windows\\System32\\   # or add target\release to PATH
 
-ppm --version
+ppmm --version
 ```
 
-Binary output: `target/release/ppm` (or `ppm.exe` on Windows).
+Binary output: `target/release/ppmm` (or `ppm.exe` on Windows).
 
 ## Commands
 
 ### Create & Initialize Projects
 
-#### `ppm new <NAME>`
+#### `ppmm new <NAME>`
 Create a new Python project with scaffolding.
 
 **Options:**
@@ -135,33 +135,33 @@ Create a new Python project with scaffolding.
 **Examples:**
 ```bash
 # Create basic project
-ppm new my-project
+ppmm new my-project
 
 # Create with metadata and git
-ppm new my-project -v 1.0.0 -d "My awesome project" -g
+ppmm new my-project -v 1.0.0 -d "My awesome project" -g
 
 # Create without venv
-ppm new my-project --no-venv
+ppmm new my-project --no-venv
 ```
 
-#### `ppm init`
+#### `ppmm init`
 Initialize a Python project in the current directory.
 
 **Options:**
-- Same as `ppm new`
+- Same as `ppmm new`
 
 **Examples:**
 ```bash
 # Initialize in current directory
-ppm init
+ppmm init
 
 # Initialize with git
-ppm init -g
+ppmm init -g
 ```
 
 ### Package Management
 
-#### `ppm add <PACKAGES>`
+#### `ppmm add <PACKAGES>`
 Add one or more packages to the project.
 
 **Features:**
@@ -173,16 +173,16 @@ Add one or more packages to the project.
 **Examples:**
 ```bash
 # Add multiple packages
-ppm add requests flask numpy
+ppmm add requests flask numpy
 
 # Add specific versions
-ppm add django==3.2.0 pillow==9.0.0
+ppmm add django==3.2.0 pillow==9.0.0
 
 # Mix and match
-ppm add requests flask==2.0.0 numpy
+ppmm add requests flask==2.0.0 numpy
 ```
 
-#### `ppm rm <PACKAGES>`
+#### `ppmm rm <PACKAGES>`
 Remove packages from the project and environment.
 
 **Features:**
@@ -192,11 +192,11 @@ Remove packages from the project and environment.
 
 **Examples:**
 ```bash
-ppm rm requests
-ppm rm flask numpy pandas
+ppmm rm requests
+ppmm rm flask numpy pandas
 ```
 
-#### `ppm update`
+#### `ppmm update`
 Update all packages to their latest versions from PyPI.
 
 **Features:**
@@ -206,12 +206,12 @@ Update all packages to their latest versions from PyPI.
 
 **Examples:**
 ```bash
-ppm update
+ppmm update
 ```
 
 ### Script Management
 
-#### `ppm run <SCRIPT-NAME>`
+#### `ppmm run <SCRIPT-NAME>`
 Execute a custom script defined in `project.toml`.
 
 **Features:**
@@ -221,12 +221,12 @@ Execute a custom script defined in `project.toml`.
 
 **Examples:**
 ```bash
-ppm run test
-ppm run build
-ppm run dev
+ppmm run test
+ppmm run build
+ppmm run dev
 ```
 
-#### `ppm build`
+#### `ppmm build`
 Run the `build` script defined in the `[scripts]` section of `project.toml`.
 
 **Features:**
@@ -240,10 +240,10 @@ Run the `build` script defined in the `[scripts]` section of `project.toml`.
 # [scripts]
 # build = "python setup.py build"
 
-ppm build
+ppmm build
 ```
 
-#### `ppm bump <TYPE>`
+#### `ppmm bump <TYPE>`
 Automatically bump the project version following semantic versioning.
 
 **Arguments:**
@@ -260,18 +260,18 @@ Automatically bump the project version following semantic versioning.
 **Examples:**
 ```bash
 # Bump patch version
-ppm bump patch
+ppmm bump patch
 
 # Bump minor version
-ppm bump minor
+ppmm bump minor
 
 # Bump major version
-ppm bump major
+ppmm bump major
 ```
 
 ### Project Information
 
-#### `ppm info`
+#### `ppmm info`
 Display comprehensive project information.
 
 **Shows:**
@@ -305,7 +305,7 @@ pytest==6.2.0
 
 ### Requirements Management
 
-#### `ppm gen`
+#### `ppmm gen`
 Generate a `requirements.txt` file from `project.toml`.
 
 **Features:**
@@ -315,12 +315,12 @@ Generate a `requirements.txt` file from `project.toml`.
 
 **Examples:**
 ```bash
-ppm gen
+ppmm gen
 
 # Equivalent to: pip freeze > requirements.txt
 ```
 
-#### `ppm install`
+#### `ppmm install`
 Install all packages from `project.toml`.
 
 **Features:**
@@ -334,11 +334,11 @@ Install all packages from `project.toml`.
 **Examples:**
 ```bash
 # Install from project.toml
-ppm install
+ppmm install
 
 # Install from requirements.txt
-ppm install -r requirements.txt
-ppm install --requirements /path/to/reqs.txt
+ppmm install -r requirements.txt
+ppmm install --requirements /path/to/reqs.txt
 ```
 
 ## Project Configuration
@@ -404,10 +404,10 @@ my-project/
 
 ```bash
 # Create project
-ppm new api-server -v 1.0.0 -d "REST API server" -g
+ppmm new api-server -v 1.0.0 -d "REST API server" -g
 
 # Add dependencies
-ppm add flask flask-cors flask-sqlalchemy
+ppmm add flask flask-cors flask-sqlalchemy
 
 # Create scripts
 # Edit project.toml to add:
@@ -416,23 +416,23 @@ ppm add flask flask-cors flask-sqlalchemy
 # prod = "gunicorn main:app"
 
 # Start development
-ppm start
+ppmm start
 ```
 
 ### Example 2: Data Science Project
 
 ```bash
 # Create project
-ppm new data-analysis -d "Data analysis project"
+ppmm new data-analysis -d "Data analysis project"
 
 # Add data science packages
-ppm add pandas numpy scipy matplotlib scikit-learn jupyter
+ppmm add pandas numpy scipy matplotlib scikit-learn jupyter
 
 # Generate requirements for sharing
-ppm gen
+ppmm gen
 
 # Update all packages
-ppm update
+ppmm update
 ```
 
 ### Example 3: Migrate from pip
@@ -440,13 +440,13 @@ ppm update
 ```bash
 # Convert existing project
 cd my-existing-project
-ppm init -g
+ppmm init -g
 
 # Install from existing requirements
-ppm install -r requirements.txt
+ppmm install -r requirements.txt
 
 # Generate new project config
-ppm gen
+ppmm gen
 ```
 
 ## Cross-Platform Support
@@ -499,7 +499,7 @@ cargo clippy
 
 ### Output
 
-Binary location: `target/release/ppm` (or `ppm.exe` on Windows)
+Binary location: `target/release/ppmm` (or `ppm.exe` on Windows)
 
 ### Development
 
@@ -564,7 +564,7 @@ cargo watch -x build
 **Problem:** "Virtual Environment Not Found"
 
 **Solutions:**
-1. Create venv: `ppm new my-project` (auto-creates)
+1. Create venv: `ppmm new my-project` (auto-creates)
 2. Manually create: `python -m venv venv`
 3. Use `--no-venv` flag if intentional
 
@@ -576,7 +576,7 @@ cargo watch -x build
 1. Check package name spelling
 2. Verify package exists: `pip search <package>`
 3. Check pip version: `pip --version`
-4. Update pip: `ppm run upgrade-pip`
+4. Update pip: `ppmm run upgrade-pip`
 
 ### Python Not Found
 
@@ -643,8 +643,8 @@ For issues, questions, or suggestions:
 
 ### Version 1.1.0
 
-- ✅ Added `ppm build` command for project builds
-- ✅ Added `ppm bump` command for semantic versioning (major, minor, patch)
+- ✅ Added `ppmm build` command for project builds
+- ✅ Added `ppmm bump` command for semantic versioning (major, minor, patch)
 - ✅ Automatic version control and management
 - ✅ Install script with prerequisites checking
 - ✅ Quick one-liner installer support
