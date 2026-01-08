@@ -6,7 +6,6 @@ mod ppm_functions;
 use project_managers::Action;
 use clap::Parser;
 
-
 const VERSION : &str = env!("CARGO_PKG_VERSION");
 const ABOUT: &str = env!("CARGO_PKG_DESCRIPTION");
 const AUTHOR : &str = env!("CARGO_PKG_AUTHORS");
@@ -15,7 +14,6 @@ const AUTHOR : &str = env!("CARGO_PKG_AUTHORS");
 #[derive(Parser, Debug)]
 #[clap(author=AUTHOR, version=VERSION, about=ABOUT, long_about = None)]
 struct Cli {
-
     #[clap(subcommand)]
     command: Action,
 }
@@ -30,6 +28,7 @@ fn main() {
         Action::Rm(rp) => rp.remove_package(),
         Action::Run(run) => run.run_script(),
         Action::Install(installer) => installer.install_packages(),
+        Action::Build(builder) => builder.build_project(),
         Action::Info => ppm_functions::show_project_info(),
         Action::Gen => ppm_functions::gen_requirements(),
         Action::Start => ppm_functions::start_project(),

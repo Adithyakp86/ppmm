@@ -1,10 +1,8 @@
 use clap::{Subcommand, Args};
 use colored::Colorize;
-
 use std::{fs, process::Command, path::Path, time::Instant, collections::HashMap};
 use crate::utils::*;
 use crate::settings::*;
-
 
 const STARTER_SOURCE_PY: &str = "
 def main():
@@ -14,38 +12,30 @@ if __name__ == '__main__':
     main()
 ";
 
-
 #[derive(Subcommand, Debug)]
 pub enum Action {
     /// Create New Project With Given Name
     New(ProjectConf),
-
     /// Initialize Project In Current Directory
     Init(ProjectConf),
-
     /// Add new packages to project 
     Add(AddPackage),
-
     /// Remove packages from project
     Rm(RemovePackage),
-
     /// Run a script defined in project.toml
     Run(RunScript),
-
     /// Install packages from project.toml or provided requirements.txt
     Install(Installer),
-
     /// Run main script defined in project.toml
     Start,
-
     /// Generate requirements.txt file
     Gen,
-
     /// Show the project.toml file
     Info,
-
     /// Update all packages 
     Update,
+    /// Build the project
+    Build(BuildProject),
 }
 
 pub struct ProjectCreator {
@@ -81,7 +71,6 @@ impl ProjectCreator {
             .output()
             .map_err(|e| format!("Failed to initialize git: {}", e))?;
         
-        // Add build to gitignore
         let gitignore_path = self.get_path_with(".gitignore");
         fs::write(&gitignore_path, "/build\n/venv\n")
             .map_err(|e| format!("Failed to create .gitignore: {}", e))?;
@@ -133,19 +122,16 @@ impl ProjectCreator {
             return;
         }
         
-        // Create main.py file
         if let Err(e) = self.create_boilerplate_files() {
             eprint(e);
             return;
         }
 
-        // Setup git
         if let Err(e) = self.create_git() {
             eprint(e);
             return;
         }
 
-        // venv
         if !self.project.no_venv {
             if let Err(e) = setup_venv(self.get_path_with("venv")) {
                 eprint(format!("Failed to setup venv: {}", e));
@@ -155,7 +141,6 @@ impl ProjectCreator {
             wprint("Virtual environment is disabled, some commands might not work".to_string());
         }
 
-        // Save config
         if let Err(e) = self.save_config() {
             eprint(e);
             return;
@@ -169,49 +154,37 @@ impl ProjectCreator {
         }
         println!("  {} start\n", "ppm".red());
     }
-
 }
 
 #[derive(Args, Debug, Clone)]
 pub struct ProjectConf {
     /// Set Project Name
     name: String,
-
     /// Set Project Version
     #[clap(short = 'v', long = "version", default_value = "0.1.0")]
     version: String,
-
     /// Set Project Description
     #[clap(short = 'd', long = "description", default_value = "")]
     description: String,
-
     /// Enable Git
     #[clap(short = 'g', long = "git", takes_value = false)]
     git: bool,
-
     /// Don't Create Virtual Environment
     #[clap(short = 'e', long = "no-venv", takes_value = false)]
     no_venv: bool,
-
 }
 
-
 impl ProjectConf {
-
     pub fn create_project(&self, is_init: bool) {
         let proj_creator = ProjectCreator::new(self.clone(), is_init);
         proj_creator.create_project();
     }
-
 }
-
 
 #[derive(Args, Debug)]
 pub struct AddPackage {
-
     /// List of packages to add
     pub pkg_names: Vec<String>,
-
 }
 
 impl AddPackage {
@@ -265,12 +238,10 @@ impl AddPackage {
     }
 }
 
-
 #[derive(Args, Debug)]
 pub struct RemovePackage {
     /// List of packages to remove
     pub pkg_names: Vec<String>,
-
 }
 
 impl RemovePackage {
@@ -336,13 +307,10 @@ impl RemovePackage {
     }
 }
 
-
 #[derive(Args, Debug)]
 pub struct RunScript {
-
     /// Script Name
     pub script_name: String,
-
 }
 
 impl RunScript {
@@ -398,14 +366,11 @@ impl RunScript {
     }
 }
 
-
 #[derive(Args, Debug)]
 pub struct Installer {
-    
     /// Install from requirements
     #[clap(short = 'r', long = "requirements", default_value = "")]
     pub requirements: String,
-
 }
 
 impl Installer {
@@ -501,7 +466,7 @@ impl Installer {
             return;
         }
 
-        let conf = match Config::load_from_file(config_file) {
+        let  conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
                 eprint(e.to_string());
@@ -510,7 +475,7 @@ impl Installer {
         };
 
         if conf.packages.is_empty() {
-            eprint("No packages to install".to_owned());
+            wprint("No packages to install".to_owned());
             return;
         }
 
@@ -527,21 +492,73 @@ impl Installer {
             }
         }
 
-        let mut cmd = Command::new(get_venv_pip_path());
-        cmd.arg("install");
         for (name, version) in conf.packages.iter() {
-            cmd.arg(format!("{}=={}", name, version));
+            let package_spec = format!("{}=={}", name, version);
+            match install_package(&package_spec) {
+                Ok(_) => iprint(format!("Package '{}' installed", name)),
+                Err(e) => eprint(format!("Failed to install '{}': {}", name, e)),
+            }
         }
+    }
+}
+
+#[derive(Args, Debug)]
+pub struct BuildProject;
+
+impl BuildProject {
+    pub fn build_project(&self) {
+        let config_file = get_project_config_file();
+        if !Path::new(config_file).exists() {
+            eprint(format!("Could not find {}", config_file));
+            return;
+        } 
+        
+        let conf = match Config::load_from_file(config_file) {
+            Ok(conf) => conf,
+            Err(e) => {
+                eprint(e.to_string());
+                return;
+            }
+        };
+
+        // Check if build script exists
+        let build_script = match conf.scripts.get("build") {
+            Some(script) => script,
+            None => {
+                wprint("No 'build' script defined in project.toml".to_string());
+                wprint("Add a [scripts] section with 'build = \"your build command\"'".to_string());
+                return;
+            }
+        };
+
+        iprint(format!("Building project: {}", conf.project.name));
+        
+        let mut cmd = if cfg!(target_os = "windows") {
+            let mut c = Command::new("cmd");
+            c.arg("/C");
+            c
+        } else if cfg!(target_os = "linux") || cfg!(target_os = "macos") {
+            let mut c = Command::new("sh");
+            c.arg("-c");
+            c
+        } else {
+            eprint("Unsupported OS".to_owned());
+            return;
+        };
+        
+        cmd.env("PATH", get_venv_bin_dir());
+        cmd.arg(build_script);
 
         match cmd.spawn() {
             Ok(mut child) => {
                 if let Err(e) = child.wait() {
-                    eprint(format!("Error during package installation: {}", e));
+                    eprint(format!("Error waiting for build script: {}", e));
+                    return;
                 }
+                iprint("Build completed successfully".to_string());
             }
             Err(e) => {
-                eprint("Failed to install packages".to_owned());
-                eprint(e.to_string());
+                eprint(format!("Failed to execute build script: {}", e));
             }
         }
     }

@@ -48,5 +48,4 @@ impl Config {
             .map_err(|e| Error::new(std::io::ErrorKind::InvalidData, e))?;
         Ok(config)
     }
-    
 }

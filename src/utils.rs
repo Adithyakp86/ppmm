@@ -57,9 +57,12 @@ pub fn iprint(msg: String) {
 pub fn project_exists(name: &String, is_init: bool) -> bool {
     if is_init {
         Path::new(get_project_config_file()).exists()
-    } else { Path::new(name).exists() && Path::new(&format!("{}/{}", name, get_project_config_file())).exists() }
+    } else { 
+        Path::new(name).exists() && Path::new(&format!("{}/{}", name, get_project_config_file())).exists() 
+    }
 }
-pub fn check_venv_dir_exists() -> bool  {
+
+pub fn check_venv_dir_exists() -> bool {
     Path::new(&get_venv_bin_dir()).exists()
 }
 
@@ -108,7 +111,6 @@ pub fn ask_if_create_venv() -> bool {
     }
 }
 
-/// parse name and version of package if it was name==version
 pub fn parse_version(pkg: &str) -> (String, Option<String>) {
     if let Some((name, version)) = pkg.split_once("==") {
         (name.to_string(), Some(version.to_string()))
@@ -117,19 +119,16 @@ pub fn parse_version(pkg: &str) -> (String, Option<String>) {
     }
 }
 
-/// Validate package name to prevent command injection
 fn validate_package_name(pkg: &str) -> Result<(), String> {
     if pkg.is_empty() {
         return Err("Package name cannot be empty".to_string());
     }
-    // Basic validation: allow alphanumeric, hyphens, underscores, dots, and version specifiers
     if pkg.chars().any(|c| !c.is_alphanumeric() && !"._-=<>~!".contains(c)) {
         return Err(format!("Invalid package name: {}", pkg));
     }
     Ok(())
 }
 
-/// install the specified package
 pub fn install_package(pkg: &str) -> Result<(), String> {
     if !check_venv_dir_exists() {
         return Err("Virtual Environment Not Found".to_string());

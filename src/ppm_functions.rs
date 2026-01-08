@@ -4,7 +4,6 @@ use crate::settings::Config;
 use crate::utils::*;
 use colored::*;
 
-
 pub fn show_project_info() {
     let config_file = get_project_config_file();
     if !Path::new(config_file).exists() {
@@ -20,7 +19,6 @@ pub fn show_project_info() {
     };
     println!();
 
-    // Get Python version from virtual environment
     match Command::new(get_venv_python_path())
         .arg("--version")
         .output()
@@ -57,7 +55,6 @@ pub fn show_project_info() {
         println!("... and {} more", conf.packages.len() - 10);
     }
     println!();
-    
 }
 
 pub fn gen_requirements() {
@@ -119,7 +116,6 @@ pub fn start_project() {
         }
     };
     
-    // Wait for the process to complete
     match child.wait() {
         Ok(status) => {
             if !status.success() {
@@ -131,7 +127,6 @@ pub fn start_project() {
         }
     }
 }
-
 
 pub fn update_packages() {
     let config_file = get_project_config_file();
@@ -213,5 +208,4 @@ pub fn update_packages() {
                       failed_packages.len(), 
                       failed_packages.join(", ")));
     }
-    
 }
