@@ -1,9 +1,9 @@
-# PPM - Python Project Manager
+# PPMM - Python Project Manager 
 
 A fast, efficient command-line tool to create, manage, and deploy Python projects. Written in Rust with cross-platform support for Windows, macOS, and Linux.
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.1.1latest-brightgreen.svg)](https://github.com/Sumangal44/ppmm/releases)
+[![Version](https://img.shields.io/badge/version-1.1.3latest-brightgreen.svg)](https://github.com/Sumangal44/ppmm/releases)
 
 ## Table of Contents
 
