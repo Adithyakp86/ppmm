@@ -656,7 +656,7 @@ fn bump_semantic_version(version: &str, bump_type: &str) -> Result<String, Strin
             return Err(format!(
                 "Unknown bump type: {}. Use 'major', 'minor', or 'patch'",
                 bump_type
-            ))
+            ));
         }
     };
 
