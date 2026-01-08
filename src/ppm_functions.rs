@@ -1,15 +1,15 @@
-pub(crate) use std::path::Path;
-use std::process::Command;
 use crate::settings::Config;
 use crate::utils::*;
 use colored::*;
+pub(crate) use std::path::Path;
+use std::process::Command;
 
 pub fn show_project_info() {
     let config_file = get_project_config_file();
     if !Path::new(config_file).exists() {
         eprint(format!("Could not find {}", config_file));
         return;
-    } 
+    }
     let conf = match Config::load_from_file(config_file) {
         Ok(conf) => conf,
         Err(e) => {
@@ -28,28 +28,60 @@ pub fn show_project_info() {
             if let Some((name, ver)) = version.trim().split_once(' ') {
                 println!("{}: {}", name.bold().bright_purple(), ver.bold().red());
             }
-        },
+        }
         Ok(_) | Err(_) => {
             wprint("Failed to get Python version".to_string());
         }
     };
 
-    println!("{}: {}", "Project".green().bold(), conf.project.name.bright_cyan().bold());
-    println!("{}: {}", "Version".green().bold(), conf.project.version.bright_red().bold());
-    println!("{}: {}", "Description".green().bold(), conf.project.description.bright_white().bold());
-    
+    println!(
+        "{}: {}",
+        "Project".green().bold(),
+        conf.project.name.bright_cyan().bold()
+    );
+    println!(
+        "{}: {}",
+        "Version".green().bold(),
+        conf.project.version.bright_red().bold()
+    );
+    println!(
+        "{}: {}",
+        "Description".green().bold(),
+        conf.project.description.bright_white().bold()
+    );
+
     println!();
     let count = conf.scripts.len();
-    println!("-- {} {} --", count.to_string().green().bold(),  if count == 1 { "Script".to_owned() } else { "Scripts".to_owned() });
+    println!(
+        "-- {} {} --",
+        count.to_string().green().bold(),
+        if count == 1 {
+            "Script".to_owned()
+        } else {
+            "Scripts".to_owned()
+        }
+    );
     for (name, cmd) in conf.scripts.iter() {
         println!("{}: {}", name.bright_yellow().bold(), cmd.green().bold());
     }
 
     println!();
     let count = conf.packages.len();
-    println!("-- {} {} --", count.to_string().green().bold(),  if count == 1 { "Package".to_owned() } else { "Packages".to_owned() });
+    println!(
+        "-- {} {} --",
+        count.to_string().green().bold(),
+        if count == 1 {
+            "Package".to_owned()
+        } else {
+            "Packages".to_owned()
+        }
+    );
     for (name, version) in conf.packages.iter().take(10) {
-        println!("{}=={}", name.bright_yellow().bold(), version.bright_red().bold());
+        println!(
+            "{}=={}",
+            name.bright_yellow().bold(),
+            version.bright_red().bold()
+        );
     }
     if conf.packages.len() > 10 {
         println!("... and {} more", conf.packages.len() - 10);
@@ -62,7 +94,7 @@ pub fn gen_requirements() {
     if !Path::new(config_file).exists() {
         eprint(format!("Could not find {}", config_file));
         return;
-    }  
+    }
 
     let conf = match Config::load_from_file(config_file) {
         Ok(conf) => conf,
@@ -76,7 +108,7 @@ pub fn gen_requirements() {
     for (name, version) in conf.packages.iter() {
         reqs.push_str(&format!("{}=={}\n", name, version));
     }
-    
+
     let req_file = get_requirements_file();
     match std::fs::write(req_file, reqs) {
         Ok(_) => iprint(format!("Generated {}", req_file)),
@@ -89,7 +121,7 @@ pub fn start_project() {
     if !Path::new(config_file).exists() {
         eprint(format!("Could not find {}", config_file));
         return;
-    } 
+    }
 
     let conf = match Config::load_from_file(config_file) {
         Ok(conf) => conf,
@@ -100,7 +132,10 @@ pub fn start_project() {
     };
 
     if !Path::new(&conf.project.main_script).exists() {
-        eprint(format!("Main script '{}' not found", conf.project.main_script));
+        eprint(format!(
+            "Main script '{}' not found",
+            conf.project.main_script
+        ));
         return;
     }
 
@@ -115,7 +150,7 @@ pub fn start_project() {
             return;
         }
     };
-    
+
     match child.wait() {
         Ok(status) => {
             if !status.success() {
@@ -133,8 +168,8 @@ pub fn update_packages() {
     if !Path::new(config_file).exists() {
         eprint(format!("Could not find {}", config_file));
         return;
-    } 
-    
+    }
+
     let mut conf = match Config::load_from_file(config_file) {
         Ok(conf) => conf,
         Err(e) => {
@@ -163,7 +198,7 @@ pub fn update_packages() {
 
     let mut updates: Vec<(String, String)> = vec![];
     let mut failed_packages: Vec<String> = vec![];
-    
+
     for (name, _) in conf.packages.iter() {
         match get_pkg_version(name) {
             Ok(latest_ver) => updates.push((name.clone(), latest_ver)),
@@ -202,10 +237,12 @@ pub fn update_packages() {
     if let Err(e) = conf.write_to_file(config_file) {
         eprint(format!("Failed to update config file: {}", e));
     }
-    
+
     if !failed_packages.is_empty() {
-        wprint(format!("Failed to update {} package(s): {}", 
-                      failed_packages.len(), 
-                      failed_packages.join(", ")));
+        wprint(format!(
+            "Failed to update {} package(s): {}",
+            failed_packages.len(),
+            failed_packages.join(", ")
+        ));
     }
 }

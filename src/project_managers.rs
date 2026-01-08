@@ -1,8 +1,8 @@
-use clap::{Subcommand, Args};
-use colored::Colorize;
-use std::{fs, process::Command, path::Path, time::Instant, collections::HashMap};
-use crate::utils::*;
 use crate::settings::*;
+use crate::utils::*;
+use clap::{Args, Subcommand};
+use colored::Colorize;
+use std::{collections::HashMap, fs, path::Path, process::Command, time::Instant};
 
 const STARTER_SOURCE_PY: &str = "
 def main():
@@ -18,7 +18,7 @@ pub enum Action {
     New(ProjectConf),
     /// Initialize Project In Current Directory
     Init(ProjectConf),
-    /// Add new packages to project 
+    /// Add new packages to project
     Add(AddPackage),
     /// Remove packages from project
     Rm(RemovePackage),
@@ -32,7 +32,7 @@ pub enum Action {
     Gen,
     /// Show the project.toml file
     Info,
-    /// Update all packages 
+    /// Update all packages
     Update,
     /// Build the project
     Build(BuildProject),
@@ -47,10 +47,7 @@ pub struct ProjectCreator {
 
 impl ProjectCreator {
     fn new(project: ProjectConf, is_init: bool) -> ProjectCreator {
-        ProjectCreator {
-            project,
-            is_init,
-        }
+        ProjectCreator { project, is_init }
     }
 
     fn get_path_with(&self, path: &str) -> String {
@@ -65,21 +62,25 @@ impl ProjectCreator {
         if !self.project.git {
             return Ok(());
         }
-        
-        let path = if self.is_init { "." } else { &self.project.name };
+
+        let path = if self.is_init {
+            "."
+        } else {
+            &self.project.name
+        };
         Command::new("git")
             .arg("init")
             .arg(path)
             .output()
             .map_err(|e| format!("Failed to initialize git: {}", e))?;
-        
+
         let gitignore_path = self.get_path_with(".gitignore");
         fs::write(&gitignore_path, "/build\n/venv\n")
             .map_err(|e| format!("Failed to create .gitignore: {}", e))?;
-        
+
         Ok(())
     }
-    
+
     fn create_boilerplate_files(&self) -> Result<(), String> {
         let proj_dest = self.get_path_with("src");
         let main_file_path = format!("{}/main.py", proj_dest);
@@ -94,14 +95,19 @@ impl ProjectCreator {
                 self.project.name.clone(),
                 self.project.version.clone(),
                 self.project.description.clone(),
-                if self.is_init { "./main.py" } else { "./src/main.py" }.to_string()  
+                if self.is_init {
+                    "./main.py"
+                } else {
+                    "./src/main.py"
+                }
+                .to_string(),
             ),
             HashMap::new(),
             HashMap::new(),
         );
         conf.scripts.insert(
-            "upgrade-pip".to_string(), 
-            "python -m pip install --upgrade pip".to_string()
+            "upgrade-pip".to_string(),
+            "python -m pip install --upgrade pip".to_string(),
         );
 
         let config_path = self.get_path_with(get_project_config_file());
@@ -113,17 +119,20 @@ impl ProjectCreator {
     pub fn create_project(&self) {
         let start = Instant::now();
         let proj_dest = self.get_path_with("src");
-        
+
         if project_exists(&self.project.name, self.is_init) {
-            eprint(format!("Project With Name '{}' Already Exists", &self.project.name));
+            eprint(format!(
+                "Project With Name '{}' Already Exists",
+                &self.project.name
+            ));
             return;
         }
-        
+
         if let Err(e) = fs::create_dir_all(&proj_dest) {
             eprint(format!("Failed to create directory: {}", e));
             return;
         }
-        
+
         if let Err(e) = self.create_boilerplate_files() {
             eprint(e);
             return;
@@ -195,8 +204,8 @@ impl AddPackage {
         if !Path::new(config_file).exists() {
             eprint(format!("Could not find {}", config_file));
             return;
-        } 
-        
+        }
+
         let mut conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
@@ -212,17 +221,15 @@ impl AddPackage {
                 Ok(_) => {
                     let version = match ver {
                         Some(v) => v,
-                        None => {
-                            match get_pkg_version(&vname) {
-                                Ok(v) => v,
-                                Err(e) => {
-                                    eprint(format!("Failed to get version for '{}': {}", vname, e));
-                                    continue;
-                                }
+                        None => match get_pkg_version(&vname) {
+                            Ok(v) => v,
+                            Err(e) => {
+                                eprint(format!("Failed to get version for '{}': {}", vname, e));
+                                continue;
                             }
-                        }
+                        },
                     };
-                    
+
                     conf.packages.insert(vname.clone(), version);
                     match conf.write_to_file(config_file) {
                         Ok(_) => iprint(format!("Package '{}' added successfully", &vname)),
@@ -251,7 +258,7 @@ impl RemovePackage {
         if !check_venv_dir_exists() {
             return Err("Virtual Environment Not Found".to_string());
         }
-        
+
         iprint(format!("Uninstalling {}", pkg));
         let output = Command::new(get_venv_pip_path())
             .arg("uninstall")
@@ -259,12 +266,14 @@ impl RemovePackage {
             .arg(pkg)
             .output()
             .map_err(|e| format!("Failed to execute pip: {}", e))?;
-        
+
         if !output.status.success() {
-            return Err(format!("Failed to uninstall: {}", 
-                              String::from_utf8_lossy(&output.stderr)));
+            return Err(format!(
+                "Failed to uninstall: {}",
+                String::from_utf8_lossy(&output.stderr)
+            ));
         }
-        
+
         println!("{}", String::from_utf8_lossy(&output.stdout));
         Ok(())
     }
@@ -274,8 +283,8 @@ impl RemovePackage {
         if !Path::new(config_file).exists() {
             eprint(format!("Could not find {}", config_file));
             return;
-        } 
-        
+        }
+
         let mut conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
@@ -283,13 +292,13 @@ impl RemovePackage {
                 return;
             }
         };
-        
+
         for pkg_name in self.pkg_names.iter() {
             if !conf.packages.contains_key(pkg_name) {
                 eprint(format!("Package '{}' does not exist", pkg_name));
                 continue;
             }
-            
+
             match self.uninstall_package(pkg_name) {
                 Ok(_) => {
                     conf.packages.remove(pkg_name);
@@ -321,8 +330,8 @@ impl RunScript {
         if !Path::new(config_file).exists() {
             eprint(format!("Could not find {}", config_file));
             return;
-        } 
-        
+        }
+
         let conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
@@ -334,7 +343,10 @@ impl RunScript {
         let cmd_str = match conf.scripts.get(&self.script_name) {
             Some(cmd) => cmd,
             None => {
-                eprint(format!("Script with name '{}' does not exist", self.script_name));
+                eprint(format!(
+                    "Script with name '{}' does not exist",
+                    self.script_name
+                ));
                 return;
             }
         };
@@ -351,7 +363,7 @@ impl RunScript {
             eprint("Unsupported OS".to_owned());
             return;
         };
-        
+
         cmd.env("PATH", get_venv_bin_dir());
         cmd.arg(cmd_str);
 
@@ -429,17 +441,15 @@ impl Installer {
                 Ok(_) => {
                     let version = match ver {
                         Some(v) => v,
-                        None => {
-                            match get_pkg_version(&vname) {
-                                Ok(v) => v,
-                                Err(e) => {
-                                    eprint(format!("Failed to get version for '{}': {}", vname, e));
-                                    continue;
-                                }
+                        None => match get_pkg_version(&vname) {
+                            Ok(v) => v,
+                            Err(e) => {
+                                eprint(format!("Failed to get version for '{}': {}", vname, e));
+                                continue;
                             }
-                        }
+                        },
                     };
-                    
+
                     conf.packages.insert(vname.clone(), version);
                     match conf.write_to_file(config_file) {
                         Ok(_) => iprint(format!("Package '{}' installed successfully", &vname)),
@@ -468,7 +478,7 @@ impl Installer {
             return;
         }
 
-        let  conf = match Config::load_from_file(config_file) {
+        let conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
                 eprint(e.to_string());
@@ -513,8 +523,8 @@ impl BuildProject {
         if !Path::new(config_file).exists() {
             eprint(format!("Could not find {}", config_file));
             return;
-        } 
-        
+        }
+
         let conf = match Config::load_from_file(config_file) {
             Ok(conf) => conf,
             Err(e) => {
@@ -534,7 +544,7 @@ impl BuildProject {
         };
 
         iprint(format!("Building project: {}", conf.project.name));
-        
+
         let mut cmd = if cfg!(target_os = "windows") {
             let mut c = Command::new("cmd");
             c.arg("/C");
@@ -547,7 +557,7 @@ impl BuildProject {
             eprint("Unsupported OS".to_owned());
             return;
         };
-        
+
         cmd.env("PATH", get_venv_bin_dir());
         cmd.arg(build_script);
 
@@ -602,7 +612,11 @@ impl BumpVersion {
 
         match conf.write_to_file(config_file) {
             Ok(_) => {
-                iprint(format!("Version bumped: {} → {}", current_version.bright_cyan(), new_version.bright_green()));
+                iprint(format!(
+                    "Version bumped: {} → {}",
+                    current_version.bright_cyan(),
+                    new_version.bright_green()
+                ));
             }
             Err(e) => {
                 eprint(format!("Failed to update project.toml: {}", e));
@@ -615,24 +629,35 @@ impl BumpVersion {
 fn bump_semantic_version(version: &str, bump_type: &str) -> Result<String, String> {
     // Remove alpha/beta suffixes
     let base_version = version.split('-').next().unwrap_or(version);
-    
+
     let parts: Vec<&str> = base_version.split('.').collect();
     if parts.len() != 3 {
-        return Err(format!("Invalid version format: {}. Expected major.minor.patch", version));
+        return Err(format!(
+            "Invalid version format: {}. Expected major.minor.patch",
+            version
+        ));
     }
 
-    let major: u32 = parts[0].parse()
+    let major: u32 = parts[0]
+        .parse()
         .map_err(|_| format!("Invalid major version: {}", parts[0]))?;
-    let minor: u32 = parts[1].parse()
+    let minor: u32 = parts[1]
+        .parse()
         .map_err(|_| format!("Invalid minor version: {}", parts[1]))?;
-    let patch: u32 = parts[2].parse()
+    let patch: u32 = parts[2]
+        .parse()
         .map_err(|_| format!("Invalid patch version: {}", parts[2]))?;
 
     let new_version = match bump_type {
         "major" => format!("{}.0.0", major + 1),
         "minor" => format!("{}.{}.0", major, minor + 1),
         "patch" => format!("{}.{}.{}", major, minor, patch + 1),
-        _ => return Err(format!("Unknown bump type: {}. Use 'major', 'minor', or 'patch'", bump_type)),
+        _ => {
+            return Err(format!(
+                "Unknown bump type: {}. Use 'major', 'minor', or 'patch'",
+                bump_type
+            ))
+        }
     };
 
     Ok(new_version)

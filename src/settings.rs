@@ -29,7 +29,11 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(project: Project, packages: HashMap<String, String>, scripts: HashMap<String, String>) -> Config {
+    pub fn new(
+        project: Project,
+        packages: HashMap<String, String>,
+        scripts: HashMap<String, String>,
+    ) -> Config {
         Config {
             project,
             packages,

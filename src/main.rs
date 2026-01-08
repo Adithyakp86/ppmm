@@ -1,14 +1,14 @@
-mod project_managers;
-mod utils;
-mod settings;
 mod ppm_functions;
+mod project_managers;
+mod settings;
+mod utils;
 
-use project_managers::Action;
 use clap::Parser;
+use project_managers::Action;
 
-const VERSION : &str = env!("CARGO_PKG_VERSION");
+const VERSION: &str = env!("CARGO_PKG_VERSION");
 const ABOUT: &str = env!("CARGO_PKG_DESCRIPTION");
-const AUTHOR : &str = env!("CARGO_PKG_AUTHORS");
+const AUTHOR: &str = env!("CARGO_PKG_AUTHORS");
 
 /// Python Project Manager
 #[derive(Parser, Debug)]

@@ -1,5 +1,9 @@
 use colored::*;
-use std::{path::Path, process::{Command}, io::{self, Write}};
+use std::{
+    io::{self, Write},
+    path::Path,
+    process::Command,
+};
 
 // Constants
 const PROJECT_CONFIG_FILE: &str = "project.toml";
@@ -47,18 +51,27 @@ pub fn eprint(msg: String) {
 }
 
 pub fn wprint(msg: String) {
-    println!("{} {}", "warning:".bright_yellow().bold(), msg.bright_yellow());
+    println!(
+        "{} {}",
+        "warning:".bright_yellow().bold(),
+        msg.bright_yellow()
+    );
 }
 
 pub fn iprint(msg: String) {
-    println!("{} {}", "•".bright_green().bold(), msg.bright_green().bold());
+    println!(
+        "{} {}",
+        "•".bright_green().bold(),
+        msg.bright_green().bold()
+    );
 }
 
 pub fn project_exists(name: &String, is_init: bool) -> bool {
     if is_init {
         Path::new(get_project_config_file()).exists()
-    } else { 
-        Path::new(name).exists() && Path::new(&format!("{}/{}", name, get_project_config_file())).exists() 
+    } else {
+        Path::new(name).exists()
+            && Path::new(&format!("{}/{}", name, get_project_config_file())).exists()
     }
 }
 
@@ -70,13 +83,15 @@ pub fn get_pkg_version(pkg: &str) -> Result<String, String> {
     let url = format!("{}/{}/json", PYPI_API_URL, pkg);
     let resp = reqwest::blocking::get(&url)
         .map_err(|e| format!("Failed to retrieve package version: {}", e))?;
-    
-    let json: serde_json::Value = resp.json()
+
+    let json: serde_json::Value = resp
+        .json()
         .map_err(|e| format!("Failed to parse JSON response: {}", e))?;
-    
-    let version = json["info"]["version"].as_str()
+
+    let version = json["info"]["version"]
+        .as_str()
         .ok_or_else(|| "Version field not found in response".to_string())?;
-    
+
     Ok(version.to_string())
 }
 
@@ -88,17 +103,24 @@ pub fn setup_venv(venv_path: String) -> Result<(), String> {
         .arg(&venv_path)
         .output()
         .map_err(|e| format!("Failed to execute python command: {}", e))?;
-    
+
     if !venv.status.success() {
-        return Err(format!("Virtual environment creation failed: {}", 
-                          String::from_utf8_lossy(&venv.stderr)));
+        return Err(format!(
+            "Virtual environment creation failed: {}",
+            String::from_utf8_lossy(&venv.stderr)
+        ));
     }
     Ok(())
 }
 
 pub fn ask_if_create_venv() -> bool {
     let mut answer = String::new();
-    print!("{}", "[?] Do you want to create a virtual environment? (y/n): ".green().bold());
+    print!(
+        "{}",
+        "[?] Do you want to create a virtual environment? (y/n): "
+            .green()
+            .bold()
+    );
     io::stdout().flush().unwrap();
     io::stdin().read_line(&mut answer).unwrap();
     match answer.trim().to_lowercase().as_str() {
@@ -123,7 +145,10 @@ fn validate_package_name(pkg: &str) -> Result<(), String> {
     if pkg.is_empty() {
         return Err("Package name cannot be empty".to_string());
     }
-    if pkg.chars().any(|c| !c.is_alphanumeric() && !"._-=<>~!".contains(c)) {
+    if pkg
+        .chars()
+        .any(|c| !c.is_alphanumeric() && !"._-=<>~!".contains(c))
+    {
         return Err(format!("Invalid package name: {}", pkg));
     }
     Ok(())
@@ -133,9 +158,9 @@ pub fn install_package(pkg: &str) -> Result<(), String> {
     if !check_venv_dir_exists() {
         return Err("Virtual Environment Not Found".to_string());
     }
-    
+
     validate_package_name(pkg)?;
-    
+
     iprint(format!("Installing '{}'", pkg));
     let output = Command::new(get_venv_pip_path())
         .arg("install")
@@ -144,12 +169,12 @@ pub fn install_package(pkg: &str) -> Result<(), String> {
         .map_err(|e| format!("Failed to execute pip: {}", e))?;
 
     if !output.status.success() {
-        return Err(format!("Failed to install package: {}", 
-                          String::from_utf8_lossy(&output.stderr)));
+        return Err(format!(
+            "Failed to install package: {}",
+            String::from_utf8_lossy(&output.stderr)
+        ));
     }
-    
+
     println!("{}", String::from_utf8_lossy(&output.stdout));
     Ok(())
 }
-
-
