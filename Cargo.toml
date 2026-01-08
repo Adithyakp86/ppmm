@@ -4,6 +4,13 @@ version = "1.1.0"
 edition = "2021"
 authors = ["sumangal44"]
 description = "PPM is a project manager for Python"
+license = "MIT"
+license-file = "LICENSE"
+repository = "https://github.com/Sumangal44/python-project-manager"
+homepage = "https://github.com/Sumangal44/python-project-manager"
+documentation = "https://github.com/Sumangal44/python-project-manager"
+keywords = ["python", "project", "manager", "cli", "venv"]
+categories = ["development-tools", "command-line-utilities"]
 build = "build.rs"
 
 [dependencies]
