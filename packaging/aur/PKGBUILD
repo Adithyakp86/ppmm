@@ -1,0 +1,12 @@
+pkgname=ppmm
+pkgver=1.1.5
+pkgrel=1
+arch=('x86_64')
+url='https://github.com/Sumangal44/ppmm'
+depends=('dependency1' 'dependency2')
+source=('https://github.com/Sumangal44/ppmm/archive/refs/tags/v${pkgver}.tar.gz')
+sha256sums=('SKIP')
+
+package() {
+  install -Dm755 ppmm "${pkgdir}/usr/bin/ppmm"
+}

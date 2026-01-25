@@ -1,0 +1,7 @@
+Package: ppmm
+Version: 1.1.5
+Maintainer: Sumangal Karan <sumangalkaran44@gmail.com>
+Architecture: amd64
+Depends: 
+Description: A package for ppmm
+Homepage: https://github.com/Sumangal44/ppmm
