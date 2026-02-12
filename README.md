@@ -1,3 +1,4 @@
+![OSCG26 Label](https://github.com/user-attachments/assets/9ae968b0-3aaf-49a6-9e8b-aa77f0270eba)
 # PPMM - Python Project Manager 
 
 A fast, efficient command-line tool to create, manage, and deploy Python projects. Written in Rust with cross-platform support for Windows, macOS, and Linux.
