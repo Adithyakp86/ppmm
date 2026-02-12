@@ -39,7 +39,7 @@ pub enum Action {
     Build(BuildProject),
     /// Bump project version (major, minor, patch)
     Bump(BumpVersion),
-    /// List all installed packages
+    /// List packages declared in project.toml
     List,
 }
 

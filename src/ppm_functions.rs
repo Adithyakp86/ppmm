@@ -265,12 +265,12 @@ pub fn list_packages() {
     let count = conf.packages.len();
     
     if count == 0 {
-        wprint("No packages installed".to_string());
+        wprint("No packages configured".to_string());
         return;
     }
 
     println!(
-        "\nInstalled packages ({}):",
+        "\nConfigured packages ({}):",
         count.to_string().green().bold()
     );
     
