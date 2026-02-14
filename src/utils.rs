@@ -178,3 +178,46 @@ pub fn install_package(pkg: &str, venv_root: &str) -> Result<(), String> {
     println!("{}", String::from_utf8_lossy(&output.stdout));
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_validate_package_name() {
+        assert!(validate_package_name("requests").is_ok());
+        assert!(validate_package_name("my-package").is_ok());
+        assert!(validate_package_name("my_package").is_ok());
+        assert!(validate_package_name("package123").is_ok());
+        
+        // Invalid names
+        assert!(validate_package_name("").is_err());
+        assert!(validate_package_name("pkg with spaces").is_err());
+        assert!(validate_package_name("pkg/slash").is_err());
+    }
+
+    #[test]
+    fn test_parse_version() {
+        assert_eq!(parse_version("requests==2.26.0"), ("requests".to_string(), Some("2.26.0".to_string())));
+        assert_eq!(parse_version("numpy"), ("numpy".to_string(), None));
+    }
+
+    #[test]
+    fn test_get_venv_paths() {
+        let venv_root = "test_venv";
+        
+        #[cfg(target_os = "windows")]
+        {
+            assert_eq!(get_venv_python_path(venv_root), "./test_venv/Scripts/python.exe");
+            assert_eq!(get_venv_pip_path(venv_root), "./test_venv/Scripts/pip.exe");
+            assert_eq!(get_venv_bin_dir(venv_root), "./test_venv/Scripts/");
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            assert_eq!(get_venv_python_path(venv_root), "./test_venv/bin/python");
+            assert_eq!(get_venv_pip_path(venv_root), "./test_venv/bin/pip");
+            assert_eq!(get_venv_bin_dir(venv_root), "./test_venv/bin/");
+        }
+    }
+}
