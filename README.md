@@ -80,6 +80,26 @@ ppmm run test
 ppmm run build
 ```
 
+## ⚡ Quick Command Cheat Sheet
+
+Here are the most commonly used `ppmm` commands:
+
+| Command | Description |
+|----------|------------|
+| `ppmm new <name>` | Create a new Python project |
+| `ppmm init` | Initialize ppmm in current directory |
+| `ppmm add <package>` | Add and install packages |
+| `ppmm rm <package>` | Remove installed packages |
+| `ppmm update` | Update all packages |
+| `ppmm start` | Run the main project script |
+| `ppmm run <script>` | Run custom script from project.toml |
+| `ppmm build` | Run build script |
+| `ppmm bump patch/minor/major` | Bump project version |
+| `ppmm gen` | Generate requirements.txt |
+| `ppmm install` | Install dependencies |
+| `ppmm info` | Show project details |
+
+
 ## Installation
 
 ### Using Cargo (Recommended)
